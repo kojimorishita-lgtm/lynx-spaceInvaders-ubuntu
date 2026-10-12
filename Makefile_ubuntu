@@ -19,9 +19,9 @@ $(target) : spaceInv.c sprites.c
 	cp $(TGI_DRV) . && co65 --code-label _lynxtgi lynx-160-102-16.tgi && ca65 -t lynx lynx-160-102-16.s
 	cp $(JOY_DRV) . && co65 --code-label _lynxjoy lynx-stdjoy.joy && ca65 -t lynx lynx-stdjoy.s
 
-	# 2. C言語ソースコードをオブジェクトファイル（.o）に個別コンパイル
-	$(CL) -t lynx -c -I . -I $(CC65_HOME)/include spaceInv.c
-	$(CL) -t lynx -c -I . -I $(CC65_HOME)/include sprites.c
+	# 2. C言語ソースコードをオブジェクトファイル（.o）に個別コンパイル（マクロパスを指定）
+	$(CL) -t lynx -c -I . -I $(CC65_HOME)/include --asm-include-dir $(CC65_HOME)/asminc spaceInv.c
+	$(CL) -t lynx -c -I . -I $(CC65_HOME)/include --asm-include-dir $(CC65_HOME)/asminc sprites.c
 
 	# 3. 【一撃必殺】コンフィグが拒否する c_sp (Cスタックポインタ) をその場でアセンブルして実体化します
 	echo ".exportzp c_sp" > fix_csp.s

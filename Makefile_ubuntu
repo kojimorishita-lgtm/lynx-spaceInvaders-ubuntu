@@ -1,0 +1,28 @@
+# --- ツールとパスの定義 ---
+CL=cl65
+RM=rm -f
+
+CC65_HOME=/usr/share/cc65
+CFG_FILE=$(CC65_HOME)/cfg/lynx-coll.cfg
+LIB_DIR=$(CC65_HOME)/lib
+TGI_DRV=$(CC65_HOME)/target/lynx/drv/tgi/lynx-160-102-16.tgi
+JOY_DRV=$(CC65_HOME)/target/lynx/drv/joy/lynx-stdjoy.joy
+
+target = spaceInv.lnx
+
+all: $(target)
+
+$(target) : spaceInv.c sprites.c
+	# 1. 依存するドライバーファイルをカレントディレクトリでアセンブリ化
+	cp $(TGI_DRV) . && co65 --code-label _lynxtgi lynx-160-102-16.tgi && ca65 -t lynx lynx-160-102-16.s
+	cp $(JOY_DRV) . && co65 --code-label _lynxjoy lynx-stdjoy.joy && ca65 -t lynx lynx-stdjoy.s
+	
+	# 2. 【最重要】一発の cl65 コマンドですべてのソース、オブジェクト、そして lynx.lib を1つのラインで強制結合します
+	$(CL) -t lynx -C $(CFG_FILE) -I . -I $(CC65_HOME)/include -L $(LIB_DIR) -o $@ spaceInv.c sprites.c lynx-160-102-16.o lynx-stdjoy.o lynx.lib
+	
+	# 3. 一時的なドライバーソースのクリーンアップ
+	$(RM) lynx-160-102-16.tgi lynx-160-102-16.s lynx-stdjoy.joy lynx-stdjoy.s
+
+clean:
+	$(RM) *.tgi *.s *.joy *.o *.pal *.spr *.lnx
+

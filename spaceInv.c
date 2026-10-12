@@ -175,9 +175,10 @@ void show_screen()
   			// tgi_outtextxy(50, 90, text);
 
 			// kill the ship
-			enemies[i].penpal[0] = 0;
+			enemies[i].sprite.sprctl0 = 0;
 			enemies[i].alive = 0;
 			shotFired = 0;
+
 		}
 	}
 
@@ -295,25 +296,25 @@ void main(void)
 		
         // input processing
 		joy = joy_read(JOY_1);
-		if(JOY_BTN_DOWN(joy)){
+		if(JOY_DOWN(joy)){
 			ypos += 1;
 		}
-		if(JOY_BTN_UP(joy)){
+		if(JOY_UP(joy)){
 			ypos -= 1;
 		}
-		if(JOY_BTN_LEFT(joy)){
+		if(JOY_LEFT(joy)){
 			movePlayerLeft();
 		}
-		if(JOY_BTN_RIGHT(joy)){
+		if(JOY_RIGHT(joy)){
 			movePlayerRight();
 		}
 
-		if(JOY_BTN_FIRE(joy)){
+		if(JOY_BTN_1(joy)){
 			fireShot();
 		} else {
 			//fire1 = 0;
 		}
-		if(JOY_BTN_FIRE2(joy)){
+		if(JOY_BTN_2(joy)){
 			fireShot();
 		} else {
 			//fire2 = 0;

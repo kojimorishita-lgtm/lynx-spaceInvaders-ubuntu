@@ -23,3 +23,13 @@ Steps:
 * High score screen
 
 Testing mobile development
+
+
+### How to Build on Ubuntu
+If you are using the Ubuntu standard package (`apt install cc65`), you can build the ROM using the dedicated Makefile:
+
+```bash
+make -f Makefile_ubuntu clean
+make -f Makefile_ubuntu
+```
+*Note: Includes a local assembly patch (`patch.o`) to bypass a known bug in the Ubuntu cc65 library package where internal runtime functions (`ldptr10sp`) are missing.*

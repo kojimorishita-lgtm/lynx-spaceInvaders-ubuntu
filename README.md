@@ -1,3 +1,6 @@
+# comment
+I am conducting operational tests in an Ubuntu environment, but they are not yet complete.
+
 # lynx-spaceInvaders
 Space Invaders game for Atari Lynx
 

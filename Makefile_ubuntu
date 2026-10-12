@@ -15,25 +15,25 @@ target = spaceInv.lnx
 all: $(target)
 
 $(target) : spaceInv.c sprites.c
-        # 1. 依存するドライバーファイルをカレントディレクトリでアセンブリ化
-        cp $(TGI_DRV) . && co65 --code-label _lynxtgi lynx-160-102-16.tgi && ca65 -t lynx lynx-160-102-16.s
-        cp $(JOY_DRV) . && co65 --code-label _lynxjoy lynx-stdjoy.joy && ca65 -t lynx lynx-stdjoy.s
+	# 1. 依存するドライバーファイルをカレントディレクトリでアセンブリ化
+	cp $(TGI_DRV) . && co65 --code-label _lynxtgi lynx-160-102-16.tgi && ca65 -t lynx lynx-160-102-16.s
+	cp $(JOY_DRV) . && co65 --code-label _lynxjoy lynx-stdjoy.joy && ca65 -t lynx lynx-stdjoy.s
 
-        # 2. C言語ソースコードをオブジェクトファイル（.o）に個別コンパイル
-        $(CL) -t lynx -c -I . -I $(CC65_HOME)/include spaceInv.c
-        $(CL) -t lynx -c -I . -I $(CC65_HOME)/include sprites.c
+	# 2. C言語ソースコードをオブジェクトファイル（.o）に個別コンパイル
+	$(CL) -t lynx -c -I . -I $(CC65_HOME)/include spaceInv.c
+	$(CL) -t lynx -c -I . -I $(CC65_HOME)/include sprites.c
 
-        # 3. 【一撃必殺】コンフィグが拒否する c_sp (Cスタックポインタ) をその場でアセンブルして実体化します
-        echo ".exportzp c_sp" > fix_csp.s
-        echo ".zeropage" >> fix_csp.s
-        echo "c_sp: .res 2" >> fix_csp.s
-        $(AS) -t lynx fix_csp.s
+	# 3. 【一撃必殺】コンフィグが拒否する c_sp (Cスタックポインタ) をその場でアセンブルして実体化します
+	echo ".exportzp c_sp" > fix_csp.s
+	echo ".zeropage" >> fix_csp.s
+	echo "c_sp: .res 2" >> fix_csp.s
+	$(AS) -t lynx fix_csp.s
 
-        # 4. 自分自身で作った fix_csp.o を混ぜて、lynx-coll.cfg のルールで完璧に1つに結合します
-        $(LD) -C $(CFG_FILE) -o $@ fix_csp.o spaceInv.o sprites.o lynx-160-102-16.o lynx-stdjoy.o $(LIB_DIR)/lynx.lib
+	# 4. 自分自身で作った fix_csp.o を混ぜて、lynx-coll.cfg のルールで完璧に1つに結合します
+	$(LD) -C $(CFG_FILE) -o $@ fix_csp.o spaceInv.o sprites.o lynx-160-102-16.o lynx-stdjoy.o $(LIB_DIR)/lynx.lib
 
-        # 5. 一時的なドライバーソースや中間オブジェクトのクリーンアップ
-        $(RM) lynx-160-102-16.tgi lynx-160-102-16.s lynx-stdjoy.joy lynx-stdjoy.s spaceInv.o sprites.o fix_csp.s fix_csp.o
+	# 5. 一時的なドライバーソースや中間オブジェクトのクリーンアップ
+	$(RM) lynx-160-102-16.tgi lynx-160-102-16.s lynx-stdjoy.joy lynx-stdjoy.s spaceInv.o sprites.o fix_csp.s fix_csp.o
 
 clean:
-        $(RM) *.tgi *.s *.joy *.o *.pal *.spr *.lnx
+	$(RM) *.tgi *.s *.joy *.o *.pal *.spr *.lnx

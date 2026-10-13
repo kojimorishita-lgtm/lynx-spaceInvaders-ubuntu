@@ -49,13 +49,13 @@ The Ubuntu build uses tools from `/usr/bin` and support files from `/usr/share/c
 From the project directory:
 
 ```sh
-make -f Makefile.ubuntu
+make -f Makefile_ubuntu
 ```
 
 This produces `spaceInv.lnx`. To remove generated build files:
 
 ```sh
-make -f Makefile.ubuntu clean
+make -f Makefile_ubuntu clean
 ```
 
 ## Run with Handy
@@ -70,7 +70,7 @@ Replace `YOUR_WINDOWS_USER` with your Windows username.
 
 ## Porting changes
 
-- Added `Makefile.ubuntu` with paths for Ubuntu's cc65 package and Lynx JOY/TGI drivers.
+- Added `Makefile_ubuntu` with paths for Ubuntu's cc65 package and Lynx JOY/TGI drivers.
 - Added `joy_compat.h` to provide joystick input macros used by the game.
 - Changed `bunker_template` to a single definition in `sprites.c`, with an `extern` declaration in `sprites.h`.
 - Used the packaged `lynx-coll.cfg` linker configuration, as in the original build.

@@ -1,39 +1,57 @@
-# --- ツールとパスの定義 ---
-CL=cl65
-AS=ca65
-LD=ld65
-RM=rm -f
+# Atari Lynx Space Invaders
+# Ubuntu / WSL - cc65
 
-CC65_HOME=/usr/share/cc65
-CFG_FILE=$(CC65_HOME)/cfg/lynx-coll.cfg
-LIB_DIR=$(CC65_HOME)/lib
-TGI_DRV=$(CC65_HOME)/target/lynx/drv/tgi/lynx-160-102-16.tgi
-JOY_DRV=$(CC65_HOME)/target/lynx/drv/joy/lynx-stdjoy.joy
+CC65_HOME := /usr/share/cc65
+BIN := /usr/bin
 
-target = spaceInv.lnx
+CC := $(BIN)/cc65
+AS := $(BIN)/ca65
+CO := $(BIN)/co65
+CL := $(BIN)/cl65
 
-all: $(target)
+CFG := $(CC65_HOME)/cfg/lynx-coll.cfg
+LIB := $(CC65_HOME)/lib/lynx.lib
 
-$(target) : spaceInv.c sprites.c
-	# 1. 依存するドライバーファイルをカレントディレクトリでアセンブリ化
-	cp $(TGI_DRV) . && co65 --code-label _lynxtgi lynx-160-102-16.tgi && ca65 -t lynx lynx-160-102-16.s
-	cp $(JOY_DRV) . && co65 --code-label _lynxjoy lynx-stdjoy.joy && ca65 -t lynx lynx-stdjoy.s
+JOY := $(CC65_HOME)/target/lynx/drv/joy/lynx-stdjoy.joy
+TGI := $(CC65_HOME)/target/lynx/drv/tgi/lynx-160-102-16.tgi
 
-	# 2. C言語ソースコードをオブジェクトファイル（.o）に個別コンパイル（マクロパスを指定）
-	$(CL) -t lynx -c -I . -I $(CC65_HOME)/include --asm-include-dir $(CC65_HOME)/asminc spaceInv.c
-	$(CL) -t lynx -c -I . -I $(CC65_HOME)/include --asm-include-dir $(CC65_HOME)/asminc sprites.c
+CFLAGS := -t lynx -I . -I $(CC65_HOME)/include \
+          --add-source -O -Or -Cl -Os
 
-	# 3. 【一撃必殺】コンフィグが拒否する c_sp (Cスタックポインタ) をその場でアセンブルして実体化します
-	echo ".exportzp c_sp" > fix_csp.s
-	echo ".zeropage" >> fix_csp.s
-	echo "c_sp: .res 2" >> fix_csp.s
-	$(AS) -t lynx fix_csp.s
+ASFLAGS := -t lynx -I $(CC65_HOME)/asminc
 
-	# 4. 自分自身で作った fix_csp.o を混ぜて、lynx-coll.cfg のルールで完璧に1つに結合します
-	$(LD) -C $(CFG_FILE) -o $@ fix_csp.o spaceInv.o sprites.o lynx-160-102-16.o lynx-stdjoy.o $(LIB_DIR)/lynx.lib
+TARGET := spaceInv.lnx
 
-	# 5. 一時的なドライバーソースや中間オブジェクトのクリーンアップ
-	$(RM) lynx-160-102-16.tgi lynx-160-102-16.s lynx-stdjoy.joy lynx-stdjoy.s spaceInv.o sprites.o fix_csp.s fix_csp.o
+OBJECTS := lynx-160-102-16.o lynx-stdjoy.o \
+           sprites.o spaceInv.o
+
+.PHONY: all clean
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(CL) -t lynx -C $(CFG) \
+	    -L $(CC65_HOME)/lib \
+	    -o $@ $(OBJECTS) $(LIB)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -o $*.s $<
+	$(AS) $(ASFLAGS) -o $@ $*.s
+
+lynx-stdjoy.o: $(JOY)
+	$(CO) --code-label _lynxjoy -o lynx-stdjoy.s $<
+	$(AS) $(ASFLAGS) -o $@ lynx-stdjoy.s
+
+lynx-160-102-16.o: $(TGI)
+	$(CO) --code-label _lynxtgi \
+	    -o lynx-160-102-16.s $<
+	$(AS) $(ASFLAGS) -o $@ lynx-160-102-16.s
 
 clean:
-	$(RM) *.tgi *.s *.joy *.o *.pal *.spr *.lnx
+	rm -f $(TARGET) $(OBJECTS) \
+	    spaceInv.s sprites.s \
+	    lynx-stdjoy.s lynx-160-102-16.s
+
+# Header dependencies
+spaceInv.o: spaceInv.c sprites.h consts.h joy_compat.h
+sprites.o: sprites.c sprites.h consts.h

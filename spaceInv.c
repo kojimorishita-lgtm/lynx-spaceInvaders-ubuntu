@@ -5,6 +5,7 @@
 #include <conio.h>
 #include <peekpoke.h>
 #include <joystick.h>
+#include "joy_compat.h"
 
 #include "consts.h"
 #include "sprites.h"
@@ -175,10 +176,9 @@ void show_screen()
   			// tgi_outtextxy(50, 90, text);
 
 			// kill the ship
-			enemies[i].sprite.sprctl0 = 0;
+			enemies[i].penpal[0] = 0;
 			enemies[i].alive = 0;
 			shotFired = 0;
-
 		}
 	}
 
@@ -296,25 +296,25 @@ void main(void)
 		
         // input processing
 		joy = joy_read(JOY_1);
-		if(JOY_DOWN(joy)){
+		if(JOY_BTN_DOWN(joy)){
 			ypos += 1;
 		}
-		if(JOY_UP(joy)){
+		if(JOY_BTN_UP(joy)){
 			ypos -= 1;
 		}
-		if(JOY_LEFT(joy)){
+		if(JOY_BTN_LEFT(joy)){
 			movePlayerLeft();
 		}
-		if(JOY_RIGHT(joy)){
+		if(JOY_BTN_RIGHT(joy)){
 			movePlayerRight();
 		}
 
-		if(JOY_BTN_1(joy)){
+		if(JOY_BTN_FIRE(joy)){
 			fireShot();
 		} else {
 			//fire1 = 0;
 		}
-		if(JOY_BTN_2(joy)){
+		if(JOY_BTN_FIRE2(joy)){
 			fireShot();
 		} else {
 			//fire2 = 0;
